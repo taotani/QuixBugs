@@ -10,6 +10,7 @@ procedure bucketsort(arr: [int]int, n: int, k: int) returns (sorted_arr: [int]in
     i := 0;
     while (i < n)
         invariant 0 <= i && i <= n;
+        invariant (forall m: int :: 0 <= m && m < k ==> counts[m] >= 0);
     {
         x := arr[i];
         counts[x] := counts[x] + 1;
@@ -21,16 +22,25 @@ procedure bucketsort(arr: [int]int, n: int, k: int) returns (sorted_arr: [int]in
     while (i < k)
         invariant 0 <= i && i <= k;
         invariant 0 <= p && p <= n;
+        invariant (forall m: int :: 0 <= m && m < p ==> sorted_arr[m] < i);
+        invariant (forall m1, m2: int :: 0 <= m1 && m1 < m2 && m2 < p ==> sorted_arr[m1] <= sorted_arr[m2]);
     {
         count := counts[i];
         j := 0;
         while (j < count)
             invariant 0 <= j && j <= count;
+            invariant 0 <= p && p <= n;
+            invariant (forall m: int :: p - j <= m && m < p ==> sorted_arr[m] == i);
+            invariant (forall m: int :: 0 <= m && m < p - j ==> sorted_arr[m] < i);
+            invariant (forall m1, m2: int :: 0 <= m1 && m1 < m2 && m2 < p ==> sorted_arr[m1] <= sorted_arr[m2]);
         {
+            assume p < n; 
             sorted_arr[p] := i;
             p := p + 1;
             j := j + 1;
         }
         i := i + 1;
     }
+    // Assume we filled the array (sum of counts == n)
+    assume p == n;
 }
